@@ -10,20 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Extract SHAs and URL from comment
-        id: extract
+        id: last_commit_sha
         run: |
-          # Parse the comment body to extract PR URL, current SHA, and previous SHA
-          COMMENT_BODY=$(jq -r .comment.body "${GITHUB_EVENT_PATH}")
-          PR_URL=$(echo "$COMMENT_BODY" | grep -oP 'https://github.com/\K[^ ]+')
-          CURRENT_SHA=$(echo "$COMMENT_BODY" | grep -oP 'Head SHA:\s*\K\S+')
-          PREVIOUS_SHA=$(echo "$COMMENT_BODY" | grep -oP 'Base SHA:\s*\K\S+')
-          echo "::set-output name=pr_url::$PR_URL"
-          echo "::set-output name=current_sha::$CURRENT_SHA"
-          echo "::set-output name=previous_sha::$PREVIOUS_SHA"
+          PR_URL="${{ github.event.issue.pull_request.url }}"
+          LAST_COMMIT_SHA=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $PR_URL/commits | jq -r '.[-1].sha')
+          echo "::set-output name=last_commit_sha::$LAST_COMMIT_SHA"
 
       - name: Log Pull Request Information
         run: |
           echo "Pull Request URL: ${{ github.event.issue.pull_request.html_url }}"
-          echo "Pull Request URL2: ${{ steps.extract.outputs.pr_url }}"
-          echo "Head SHA (last commit sha in current branch of PR): ${{ steps.extract.outputs.current_sha }}"
-          echo "Base SHA (last commit sha in base branch to which PR is made): ${{ steps.extract.outputs.previous_sha }}"
+          echo "Head SHA (last commit sha in current branch of PR): ${{ steps.last_commit_sha.outputs.last_commit_sha  }}"
