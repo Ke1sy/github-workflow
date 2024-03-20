@@ -9,11 +9,9 @@ jobs:
   run-happo:
     runs-on: ubuntu-latest
     steps:
-      - name: Get pull request information
+      - name: Extract SHAs and URL from comment
+        id: extract
         run: |
-          PR_URL=$(echo "${{ github.event.comment.html_url }}" | sed 's/issue\/[0-9]*//g')
-          echo "PR URL: $PR_URL"
-          BASE_SHA=$(curl -s "$PR_URL.json" | jq -r '.pull_request.base.sha')
-          HEAD_SHA=$(curl -s "$PR_URL.json" | jq -r '.pull_request.head.sha')
-          echo "Base SHA: $BASE_SHA"
-          echo "Head SHA: $HEAD_SHA"
+          echo "::set-output name=previous_sha::$(echo '${{ github.event.comment.body }}' | cut -d' ' -f3)"
+          echo "::set-output name=current_sha::$(echo '${{ github.event.comment.body }}' | cut -d' ' -f4)"
+          echo "::set-output name=change_url::$(echo '${{ github.event.comment.body }}' | cut -d' ' -f5)"
