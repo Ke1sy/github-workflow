@@ -1,0 +1,20 @@
+name: Log Pull Request Information
+on:
+  issue_comment:
+    types:
+      - created
+env:
+  NODE_VERSION: "18"
+jobs:
+  run-happo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log Pull Request Information
+        if: github.event.issue.pull_request != null
+        run: |
+          echo "Pull Request URL: ${{ github.event.issue.pull_request.html_url }}"
+          echo "Head SHA: ${{ github.event.issue.pull_request.head.sha }}"
+          echo "Base SHA: ${{ github.event.issue.pull_request.base.sha }}"
