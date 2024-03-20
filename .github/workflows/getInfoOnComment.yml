@@ -6,22 +6,26 @@ on:
 env:
   NODE_VERSION: "18"
 jobs:
-  run-happo:
-    runs-on: ubuntu-latest
+  prepare:
+    name: "Extract Pull Request Information"
+    runs-on: [self-hosted, Standard]
     steps:
-      - name: Get Pull Request Information
-        id: extract-pr-info
+      - id: previous_sha
         run: |
           PR_URL="${{ github.event.issue.pull_request.url }}"
           PR_INFO=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $PR_URL)
-
           BASE_BRANCH=$(echo "$PR_INFO" | jq -r '.base.ref')
           LAST_COMMIT_SHA_BASE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/commits/$BASE_BRANCH" | jq -r '.sha')
           echo "LAST_COMMIT_SHA_BASE=${LAST_COMMIT_SHA_BASE}" >> $GITHUB_ENV
-
+      - id: current_sha
+        run: |
+          PR_URL="${{ github.event.issue.pull_request.url }}"
           LAST_COMMIT_SHA_HEAD=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $PR_URL/commits | jq -r '.[-1].sha')
           echo "LAST_COMMIT_SHA_HEAD=${LAST_COMMIT_SHA_HEAD}" >> $GITHUB_ENV
 
+  log:
+    runs-on: ubuntu-latest
+    steps:
       - name: Log Pull Request Information
         run: |
           echo "Pull Request URL: ${{ github.event.issue.pull_request.html_url }}"
