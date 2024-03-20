@@ -12,13 +12,18 @@ jobs:
       - name: Extract SHAs and URL from comment
         id: extract
         run: |
-          echo "::set-output name=previous_sha::$(echo '${{ github.event.comment.body }}' | cut -d' ' -f3)"
-          echo "::set-output name=current_sha::$(echo '${{ github.event.comment.body }}' | cut -d' ' -f4)"
-          echo "::set-output name=change_url::$(echo '${{ github.event.comment.body }}' | cut -d' ' -f5)"
+          # Parse the comment body to extract PR URL, current SHA, and previous SHA
+          COMMENT_BODY=$(jq -r .comment.body "${GITHUB_EVENT_PATH}")
+          PR_URL=$(echo "$COMMENT_BODY" | grep -oP 'https://github.com/\K[^ ]+')
+          CURRENT_SHA=$(echo "$COMMENT_BODY" | grep -oP 'Head SHA:\s*\K\S+')
+          PREVIOUS_SHA=$(echo "$COMMENT_BODY" | grep -oP 'Base SHA:\s*\K\S+')
+          echo "::set-output name=pr_url::$PR_URL"
+          echo "::set-output name=current_sha::$CURRENT_SHA"
+          echo "::set-output name=previous_sha::$PREVIOUS_SHA"
+
       - name: Log Pull Request Information
         run: |
-          echo "Pull Request URL: ${{ steps.extract.outputs.change_url }}"
-          echo "Pull Request URL2: ${{ github.event.issue.pull_request.html_url }}"
-          echo "Pull Request URL3: ${{ github.event.comment.issue_url }}"
-          echo "Head SHA: ${{ steps.extract.outputs.current_sha }}"
-          echo "Base SHA: ${{ steps.extract.outputs.previous_sha }}"
+          echo "Pull Request URL: ${{ github.event.issue.pull_request.html_url }}"
+          echo "Pull Request URL2: ${{ steps.extract.outputs.pr_url }}"
+          echo "Head SHA (last commit sha in current branch of PR): ${{ steps.extract.outputs.current_sha }}"
+          echo "Base SHA (last commit sha in base branch to which PR is made): ${{ steps.extract.outputs.previous_sha }}"
