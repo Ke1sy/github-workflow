@@ -9,12 +9,20 @@ jobs:
   run-happo:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Extract pull request number
+        id: extract_pr_number
+        run: |
+          PR_NUMBER=$(echo "${{ github.event.comment.body }}" | grep -oE '/pull/[0-9]+' | grep -oE '[0-9]+')
+          echo "::set-output name=pr_number::$PR_NUMBER"
+
+      - name: Get pull request information
+        id: get_pr_info
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ steps.extract_pr_number.outputs.pr_number }}
 
       - name: Log Pull Request Information
-        if: github.event.issue.pull_request != null
         run: |
-          echo "Pull Request URL: ${{ github.event.issue.pull_request.html_url }}"
-          echo "Head SHA: ${{ github.event.issue.pull_request.head.sha }}"
-          echo "Base SHA: ${{ github.event.issue.pull_request.base.sha }}"
+          echo "Pull Request URL: ${{ steps.get_pr_info.outputs.data.html_url }}"
+          echo "Head SHA: ${{ steps.get_pr_info.outputs.data.head.sha }}"
+          echo "Base SHA: ${{ steps.get_pr_info.outputs.data.base.sha }}"
