@@ -19,8 +19,11 @@ jobs:
           echo "LAST_COMMIT_SHA_BASE=${LAST_COMMIT_SHA_BASE}" >> $GITHUB_ENV
           LAST_COMMIT_SHA_HEAD=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $PR_URL/commits | jq -r '.[-1].sha')
           echo "LAST_COMMIT_SHA_HEAD=${LAST_COMMIT_SHA_HEAD}" >> $GITHUB_ENV
+
+          echo "BASE_BRANCH=${BASE_BRANCH}" >> $GITHUB_ENV
       - name: Log Pull Request Information
         run: |
           echo "Pull Request URL: ${{ github.event.issue.pull_request.html_url }}"
           echo "Last Commit SHA in Current Branch of PR: $LAST_COMMIT_SHA_HEAD"
           echo "Last Commit SHA in Base Branch of PR: $LAST_COMMIT_SHA_BASE"
+          echo "Last Commit SHA in Base Branch of PR: $BASE_BRANCH"
