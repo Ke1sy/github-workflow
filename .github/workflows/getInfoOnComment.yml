@@ -29,7 +29,8 @@ jobs:
           echo "Last Commit SHA in Base Branch of PR: $BASE_BRANCH"
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.env.BASE_BRANCH }}
+          fetch-depth: 1
+          ref: next
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
