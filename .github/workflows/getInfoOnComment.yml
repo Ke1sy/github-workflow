@@ -29,7 +29,6 @@ jobs:
           echo "BASE_BRANCH: $BASE_BRANCH"
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 1
           ref: ${{ env.BASE_BRANCH }}
       - uses: actions/setup-node@v3
         with:
