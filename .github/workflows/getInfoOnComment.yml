@@ -21,15 +21,19 @@ jobs:
           echo "LAST_COMMIT_SHA_HEAD=${LAST_COMMIT_SHA_HEAD}" >> $GITHUB_ENV
 
           echo "BASE_BRANCH=${BASE_BRANCH}" >> $GITHUB_ENV
+
+          MERGE_REF=$(echo "$PR_INFO" | jq -r '.merge_commit_sha')
+          echo "MERGE_REF=${MERGE_REF}" >> $GITHUB_ENV
       - name: Log Pull Request Information
         run: |
           echo "Pull Request URL: ${{ github.event.issue.pull_request.html_url }}"
           echo "Last Commit SHA in Current Branch of PR: $LAST_COMMIT_SHA_HEAD"
           echo "Last Commit SHA in Base Branch of PR: $LAST_COMMIT_SHA_BASE"
           echo "BASE_BRANCH: $BASE_BRANCH"
+
       - uses: actions/checkout@v3
         with:
-          ref: ${{ env.BASE_BRANCH }}
+          ref: ${{ env.MERGE_REF }}
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
