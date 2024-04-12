@@ -19,3 +19,5 @@ jobs:
       - name: Test step
         run: echo 'Run test step'
       - uses: actions/checkout@v3
+      - name: Trigger error
+        run: exit 1
