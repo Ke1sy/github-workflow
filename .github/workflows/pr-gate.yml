@@ -1,4 +1,4 @@
-name: Pull Request Workflow from Master Branch
+name: Pull Request Workflow from v23.x
 
 on:
   pull_request:
